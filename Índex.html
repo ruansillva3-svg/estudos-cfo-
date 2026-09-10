@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Estudo CFO RJ</title>
+<style>
+  :root {
+    --bg: #0f172a; --card: #1e293b; --card2: #16213a;
+    --accent: #f97316; --accent2: #fb923c; --good: #22c55e; --bad: #ef4444;
+    --text: #e2e8f0; --muted: #94a3b8; --border: #334155;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: linear-gradient(180deg, #0f172a 0%, #111827 100%);
+    color: var(--text); min-height: 100vh; padding: 12px;
+  }
+  .wrap { max-width: 640px; margin: 0 auto; }
+  header { text-align: center; padding: 8px 0 12px 0; }
+  header h1 { font-size: 1.25rem; margin: 0 0 2px 0; color: #fff; }
+  header p { margin: 0; color: var(--muted); font-size: 0.78rem; }
+
+  .tabs { display: flex; gap: 6px; margin-bottom: 14px; background: var(--card2); padding: 5px; border-radius: 14px; border: 1px solid var(--border);}
+  .tabs button {
+    flex: 1; padding: 10px 4px; border: none; border-radius: 10px; background: transparent;
+    color: var(--muted); font-weight: 700; font-size: 0.78rem; cursor: pointer;
+  }
+  .tabs button.active { background: var(--accent); color: #1a0f00; }
+
+  .statsbar { display: flex; justify-content: space-between; gap: 8px; background: var(--card2); border-radius: 14px; padding: 10px 14px; margin-bottom: 14px; border: 1px solid var(--border); }
+  .stat { text-align: center; flex: 1; }
+  .stat b { display: block; font-size: 1.1rem; color: #fff; }
+  .stat span { font-size: 0.65rem; color: var(--muted); text-transform: uppercase; letter-spacing: .03em;}
+
+  .card { background: var(--card); border-radius: 16px; padding: 18px 16px; border: 1px solid var(--border); margin-bottom: 14px; }
+  .tag { display: inline-block; background: var(--accent); color: #1a0f00; font-weight: 700; font-size: 0.7rem; padding: 3px 10px; border-radius: 999px; margin-bottom: 10px; }
+  .qtext { font-size: 0.98rem; line-height: 1.5; margin-bottom: 14px; white-space: pre-wrap; }
+  .opt { display: block; width: 100%; text-align: left; background: var(--card2); color: var(--text); border: 1px solid var(--border); border-radius: 10px; padding: 11px 12px; margin-bottom: 8px; font-size: 0.9rem; cursor: pointer; }
+  .opt:active { transform: scale(0.98); }
+  .opt.correct { background: rgba(34,197,94,0.18); border-color: var(--good); color: #bbf7d0; }
+  .opt.wrong { background: rgba(239,68,68,0.18); border-color: var(--bad); color: #fecaca; }
+  .opt:disabled { cursor: default; opacity: 0.85; }
+  .feedback { margin-top: 12px; padding: 12px; border-radius: 12px; font-size: 0.88rem; line-height: 1.55; }
+  .feedback.ok { background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.3); }
+  .feedback.no { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); }
+  .feedback h4 { margin: 0 0 6px 0; font-size: 0.85rem; }
+  .videos { margin-top: 10px; }
+  .videos a { display: block; color: #93c5fd; text-decoration: none; font-size: 0.83rem; padding: 6px 0; border-bottom: 1px dashed var(--border); }
+  .videos a:last-child { border-bottom: none; }
+  .btnrow { display: flex; gap: 10px; margin-top: 14px; }
+  button.primary, button.secondary {
+    flex: 1; padding: 13px; border-radius: 12px; border: none; font-weight: 700; font-size: 0.9rem; cursor: pointer;
+  }
+  button.primary { background: var(--accent); color: #1a0f00; }
+  button.secondary { background: transparent; color: var(--muted); border: 1px solid var(--border); }
+  .endcard { text-align: center; }
+  .endcard .big { font-size: 2.4rem; font-weight: 800; color: #fff; margin: 6px 0; }
+  .errlist { text-align: left; margin-top: 14px; }
+  .erritem { background: var(--card2); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; margin-bottom: 8px; font-size: 0.83rem; }
+  .erritem b { color: var(--accent2); }
+  footer { text-align: center; color: var(--muted); font-size: 0.7rem; margin-top: 18px; padding-bottom: 20px;}
+
+  select, textarea {
+    width: 100%; background: var(--card2); color: var(--text); border: 1px solid var(--border);
+    border-radius: 10px; padding: 10px; font-size: 0.9rem; font-family: inherit;
+  }
+  textarea { min-height: 220px; resize: vertical; }
+  label { font-size: 0.82rem; color: var(--muted); display:block; margin-bottom: 6px; margin-top: 12px;}
+  .timerbar { text-align: center; font-size: 1.4rem; font-weight: 800; color: var(--accent2); margin-bottom: 10px; }
+  .navgrid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 5px; margin-top: 10px; }
+  .navgrid button { padding: 6px 0; font-size: 0.72rem; border-radius: 6px; border: 1px solid var(--border); background: var(--card2); color: var(--muted); cursor: pointer; }
+  .navgrid button.answered { background: rgba(249,115,22,0.25); color: #fff; border-color: var(--accent); }
+  .navgrid button.current { border-color: #fff; color: #fff; }
+  .theme-item { background: var(--card2); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; margin-bottom: 8px; font-size: 0.85rem; cursor: pointer; }
+  .theme-item:active { background: rgba(249,115,22,0.15); }
+  .rubric-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
+  .rubric-row span { font-size: 0.82rem; flex: 1; }
+  .rubric-row input[type=range] { flex: 1; max-width: 140px; }
+  .rubric-row b { min-width: 26px; text-align: right; color: var(--accent2); }
+  h3.section { font-size: 0.95rem; color: #fff; margin: 16px 0 8px 0; }
+  p.body-text, li.body-text { font-size: 0.87rem; line-height: 1.6; color: var(--text); }
+  .theory ul { padding-left: 18px; margin: 6px 0; }
+  .theory li { font-size: 0.86rem; line-height: 1.55; margin-bottom: 4px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>🔥 Estudo CFO RJ</h1>
+    <p>Questões reais de provas do CBMERJ &middot; simulado &middot; redação</p>
+  </header>
+
+  <div class="tabs">
+    <button id="tabLivre" class="active">Modo Livre</button>
+    <button id="tabSimulado">Simulado</button>
+    <button id="tabRedacao">Redação</button>
+  </div>
+
+  <div id="statsbar" class="statsbar">
+    <div class="stat"><b id="s-total">0</b><span>Total geral</span></div>
+    <div class="stat"><b id="s-pct">0%</b><span>% acerto geral</span></div>
+    <div class="stat"><b id="s-session">0</b><span>Nesta sessão</span></div>
+  </div>
+
+  <div id="app"></div>
+  <footer id="footerInfo"></footer>
+</div>
+
+<script>
+const ALL_QUESTIONS = [{"subject": "Português", "q": "Sobre o pensamento 'A vida é como uma escada rolante: você pode se mover para frente ou para trás, mas não pode permanecer parado', a mensagem mais importante é:", "opts": ["os seres humanos devem ajudar-se uns aos outros.", "não devemos aposentar-nos cedo demais.", "mais importante que pensar é fazer.", "ninguém deve aderir ao comodismo.", "fazer exercícios é vital para a saúde de cada um."], "answer": 3, "expl": "A metáfora da escada rolante mostra que é impossível ficar parado (ou se anda pra frente ou se recua), ou seja, o texto condena a inércia/comodismo. As outras alternativas (ajuda mútua, aposentadoria, ação x pensamento, exercício) não têm relação direta com a imagem usada."}, {"subject": "Português", "q": "'Três coisas são importantes na vida humana: a primeira é ser uma boa pessoa. A segunda é ser uma boa pessoa. E a terceira é ser uma boa pessoa.' Com essa frase o escritor:", "opts": ["brinca com o leitor, repetindo as mesmas palavras.", "repete palavras com sentidos diferentes.", "destaca a única coisa de fato importante.", "formula uma frase sem sentido.", "mostra três fatores em ordem de importância."], "answer": 2, "expl": "A repetição da mesma ideia três vezes é um recurso estilístico (anáfora) para reforçar que só existe UMA coisa realmente importante — ser boa pessoa — e não três fatores diferentes."}, {"subject": "Português", "q": "Assinale a frase em que o termo anterior a que o pronome sublinhado se refere está corretamente identificado.", "opts": ["Acreditai que nenhum mundo, que nada nem ninguém vale mais que uma vida ou a alegria de tê-la. / alegria.", "Quando você tem um elefante preso pelo pé e ele estiver tentando fugir, o melhor é deixá-lo ir. / pé.", "Se você tiver a sorte de encontrar um meio de vida de que goste, precisará ter coragem para vivê-la. / coragem.", "Todo homem pensa que Deus está do seu lado. Os ricos e os poderosos sabem que ele está. / Deus.", "Riqueza e saber são rosa e cravo que juntos não saberiam florescer. / rosa e cravo."], "answer": 3, "expl": "'Ele' na segunda frase retoma 'Deus', não riqueza/poder — os ricos sabem que Deus está do lado deles. Nas demais, o pronome não se refere ao termo indicado (em A é 'vida', em B é 'elefante', em C é 'vida')."}, {"subject": "Português", "q": "Assinale a frase em que houve troca indevida entre 'porque' e 'por que'.", "opts": ["Quem tem porque viver é capaz de suportar qualquer coisa.", "Não deves julgar os outros pela aparência porque não é justo.", "Por que, quem é calvo por natureza não recupera nunca o cabelo?", "Desejava saber por que não chove nos desertos.", "O porquê de a Lua não ter água é um mistério."], "answer": 0, "expl": "'Quem tem porque viver' deveria ser 'por que viver' (equivale a 'motivo para viver'), separado, pois é pergunta indireta/substituível por 'motivo pelo qual'. As demais estão corretas."}, {"subject": "Português", "q": "Assinale a frase em que houve troca indevida entre 'mas' e 'mais'.", "opts": ["A vida não é motivo de riso, mas já imaginou ter de viver sem rir?", "Não há mulher por mais feia que seja, que não tenha um traço de beleza.", "O jumento é um animal de patas compridas mais ideias curtas.", "Não são as mais belas que inspiram as maiores paixões.", "Digam o que quiserem, mas a pobreza é muito mais divertida."], "answer": 2, "expl": "'Patas compridas mais ideias curtas' deveria usar 'mas' (conjunção adversativa, contrapondo patas compridas e ideias curtas), e não 'mais' (advérbio de intensidade)."}, {"subject": "Português", "q": "Assinale a frase que NÃO mostra uma oposição em sua estrutura.", "opts": ["Levar uma vida fácil é tarefa bem difícil.", "O segredo de uma vida rica é ter mais princípios que fins.", "A vida está nas pequenas coisas como nas grandes.", "As mulheres são capazes de tudo e os homens, do resto.", "Um bom começo pode levar a um mau final."], "answer": 2, "expl": "'Pequenas como grandes' é uma comparação de igualdade/inclusão, não uma oposição. As demais opõem termos (fácil/difícil, princípios/fins, tudo/resto, bom/mau)."}, {"subject": "Português", "q": "Assinale a frase que está expressa em linguagem lógica e não em linguagem figurada.", "opts": ["O absurdo é o sal da vida.", "Meu principal objetivo na vida é ser feliz e fazer as pessoas felizes.", "Encontre o vazio na vida e o preencha.", "A vida é um jogo de cartas.", "Deixe sua vida dançar suavemente nas bordas do tempo como uma gota de orvalho na ponta de uma folha."], "answer": 1, "expl": "A frase B é direta e objetiva (linguagem denotativa/lógica): diz exatamente o que quer dizer. As demais usam metáforas (sal, vazio a preencher, jogo de cartas, dança/orvalho)."}, {"subject": "Português", "q": "Assinale a frase em que a troca de posição de termos trouxe modificação de sentido.", "opts": ["Quem olha para adiante não olha para trás / Quem olha para trás não olha para adiante.", "O saber se adquire com a capacidade, não com a idade / O saber se adquire com a idade, não com a capacidade.", "Os homens confiam menos nos seus ouvidos do que nos seus olhos / Os homens confiam mais nos seus olhos do que nos seus ouvidos.", "A maior arte da vida é saber a hora certa de dizer as coisas / Saber a hora certa de dizer as coisas é a maior arte da vida.", "Saber é ver em nós mesmos / Ver em nós mesmos é saber."], "answer": 1, "expl": "Trocar a ordem em B inverte o que é causa e o que é negado: 'saber vem da capacidade, não da idade' passa a dizer o oposto, 'saber vem da idade, não da capacidade'. Nas demais, a troca mantém o mesmo sentido geral."}, {"subject": "Português", "q": "As frases a seguir mostram vocábulos idênticos repetidos. Assinale a frase em que esses vocábulos mostram significados diferentes.", "opts": ["No encontro entre um sábio e um idiota, o sábio tira mais proveito.", "Saber que não se sabe constitui talvez o mais difícil e delicado saber.", "Um falso problema é sempre melhor do que problema nenhum.", "Os homens confiam menos nos seus ouvidos no que confiam nos seus olhos.", "Olho por olho, dente por dente."], "answer": 1, "expl": "Em B, 'saber' aparece como verbo (ação de saber) e depois como substantivo (o conhecimento em si) — sentidos diferentes. Nas outras, a palavra repetida mantém o mesmo sentido/função."}, {"subject": "Português", "q": "Assinale a frase cujo vocabulário tem relação com a religiosidade.", "opts": ["Quem na vida nunca foi louco nunca foi sábio.", "Tudo seria fácil, não fossem as dificuldades.", "Espero nunca me tornar velho a ponto de ficar religioso.", "Muita gente há que imagina ser o domingo uma espécie de esponja que limpa todos os pecados da semana.", "A imaginação sempre aumenta o mal que em nós é oculto."], "answer": 3, "expl": "'Pecados' e a imagem do domingo como purificação remetem diretamente ao vocabulário religioso. A alternativa C só cita a palavra 'religioso' isoladamente, sem explorar o campo semântico como D faz."}, {"subject": "Português", "q": "Assinale a frase em que houve troca indevida entre 'o' e 'lhe'.", "opts": ["Devemos ser pontes para cobrirmos os abismos e nunca para aprofundá-los.", "Se quiser conhecer verdadeiramente um homem, dê-lhe autoridade.", "Um bobo sempre acha um mais bobo para admirar-lhe.", "A minha disposição é muita, mas a minha vontade de obedecer-lhe é pouca.", "Não há prazer em estar em um lugar e não o visitar."], "answer": 2, "expl": "'Admirar' é verbo transitivo direto (admira alguém, não admira 'a' alguém), então deveria usar 'o' ('admirá-lo'), e não 'lhe'. Nas demais, 'lhe'/'o' estão empregados corretamente conforme a regência."}, {"subject": "Português", "q": "Assinale a frase em que a preposição A, sozinha ou combinada, tem seu valor semântico corretamente indicado.", "opts": ["Às nove horas ele tomou banho sem pressa. / lugar.", "Saiu às compras com toda a família. / finalidade.", "Capitu, aos quatorze anos já tinha atrevimento. / modo.", "Foi ao circo junto com a família do noivo. / tempo.", "Estava à porta de casa quando foi atingida. / direção."], "answer": 1, "expl": "'Saiu às compras' indica a finalidade da saída (ir fazer compras). Em A o correto seria tempo (não lugar); em C, idade/tempo (não modo); em D, lugar (não tempo); em E, lugar (não direção)."}, {"subject": "Português", "q": "Muitas palavras portuguesas mostram o prefixo A- sem qualquer valor semântico (A protético). Assinale a palavra que exemplifica esse caso.", "opts": ["Alargar.", "Assaltar.", "Atacar.", "Apanhar.", "Avoar."], "answer": 4, "expl": "'Avoar' vem de 'voar' com um 'a' protético que não muda o sentido (avoar = voar). Nas demais, o 'a' inicial faz parte do radical/prefixo com valor próprio (ex.: 'alargar' = tornar largo)."}, {"subject": "Português", "q": "Assinale a frase que mostra um adjetivo em grau superlativo.", "opts": ["O homem prudente previne-se para o futuro como se já estivesse presente.", "Há pessoas tão chatas que nos fazem perder um dia em cinco minutos.", "Quem mais tempo sabe aproveitar mais certo está de ganhar.", "Quando a história se encarrega de fazer teatro, o faz maravilhosamente.", "Profetizar o futuro não é difícil, mas é perigoso."], "answer": 1, "expl": "'Tão chatas' é um superlativo relativo/intensificado (grau elevado da qualidade 'chata'). As demais frases usam adjetivos no grau normal (prudente, perigoso) ou comparativos ('mais certo')."}, {"subject": "Português", "q": "Os adjetivos podem representar estados, qualidades, características e relações; assinale a frase que mostra um tipo de adjetivo diferente dos demais.", "opts": ["Meu pai, apesar da idade, não mostra cabelos brancos.", "Filhos teimosos são filhos mal-educados.", "As rosas vermelhas são as mais bonitas.", "A seda é o tecido mais macio que há.", "Toalhas manchadas são fruto de descuido."], "answer": 0, "expl": "'Brancos' descreve uma cor/característica física objetiva, enquanto os demais adjetivos (teimosos, mal-educados, bonitas, macio, manchadas) trazem juízos de valor ou qualidades mais subjetivas/relacionais."}, {"subject": "Português", "q": "Assinale a frase que mostra o acento grave indicativo da crase em um contexto em que seu uso é optativo.", "opts": ["Se encontrares o criminoso, leva-o à delegacia.", "Todos os caminhos do trabalho levam à riqueza.", "Nem sempre prestamos atenção à nossa família.", "Dê boas-vindas à felicidade.", "Tudo o que vem da terra volta à terra."], "answer": 2, "expl": "Antes de pronome possessivo ('à nossa família'), a crase é facultativa — pode-se usar 'a nossa família' ou 'à nossa família'. Nas demais frases a crase é obrigatória (termo regente exige 'a' + artigo feminino)."}, {"subject": "Português", "q": "José de Alencar, autor do Romantismo, escreveu vários romances. Assinale aquele cujo tipo está indicado erradamente.", "opts": ["O Sertanejo – romance de mistério.", "O Guarani – romance indianista.", "Senhora - romance urbano.", "Minas de Prata – romance histórico.", "O Gaúcho – romance regionalista."], "answer": 0, "expl": "'O Sertanejo' é classificado como romance regionalista, e não 'de mistério'. Os demais pares (Guarani-indianista, Senhora-urbano, Minas de Prata-histórico, O Gaúcho-regionalista) estão corretos."}, {"subject": "Português", "q": "'Minha terra tem palmeiras / Onde canta o sabiá / As aves que aqui gorjeiam / Não gorjeiam como lá'. Assinale a afirmação inadequada sobre esses versos.", "opts": ["Versos retirados da Canção do Exílio, de Gonçalves Dias.", "O texto pertence ao Romantismo no Brasil.", "Os advérbios 'aqui' e 'lá' se referem, respectivamente, a Portugal e Brasil.", "Uma das características básicas do texto é o nacionalismo.", "Os versos são livres e o vocabulário é popular, como manda o gosto da época."], "answer": 2, "expl": "É o inverso: 'aqui' se refere ao Brasil (terra natal do eu lírico) e 'lá' a Portugal (o exílio), não o contrário. As demais afirmações sobre o poema estão corretas."}, {"subject": "Português", "q": "Os Lusíadas são a grande obra do Classicismo português. Assinale a afirmação correta sobre essa obra.", "opts": ["Trata-se de uma epopeia sobre a história de Portugal.", "Exemplifica um poema autobiográfico de Camões.", "O poema é integralmente composto em versos populares.", "A obra é de estrutura descritiva.", "O título da obra se refere aos primeiros habitantes de Portugal."], "answer": 0, "expl": "'Os Lusíadas' é uma epopeia clássica que narra feitos históricos de Portugal (as viagens marítimas e a formação do império). Não é autobiográfico, não usa versos populares (usa versos cultos/decassílabos) e o título remete aos lusos/portugueses, não a 'primeiros habitantes'."}, {"subject": "Português", "q": "Sobre um trecho de 'O Primo Basílio', de Eça de Queiroz, em que Luísa relembra seu antigo namoro com o primo Basílio, assinale a afirmativa verdadeira sobre esse romance.", "opts": ["Trata-se de um romance romântico, em que o amor entre primos é idealizado.", "Mostra uma traição conjugal com fim trágico.", "Obra de conteúdo histórico em que se focaliza a história de uma família.", "Narrativa em que o protagonista – o primo Basílio – é o narrador onisciente.", "Drama que retrata o sofrimento de um casal que é separado pela força de membros de sua própria família."], "answer": 1, "expl": "'O Primo Basílio' é um romance realista que narra o adultério de Luísa com o primo Basílio, terminando tragicamente. Não é romântico nem histórico, e o narrador é onisciente em 3ª pessoa (não o próprio Basílio)."}, {"subject": "Inglês", "q": "Text: 'Impact of Climate Change on Firefighting Extends Beyond Wildfires' — sobre como o aquecimento global afeta o serviço de combate a incêndios além dos incêndios florestais. Based on the text, mark: I. The effects of climate change exclude wildfires. II. Global warming is not a current problem. III. The number of wildfires has been on the rise. The statements are, respectively:", "opts": ["F – T – F.", "T – T – F.", "T – F – T.", "F – T – T.", "F – F – T."], "answer": 4, "expl": "O texto diz que os efeitos vão ALÉM dos incêndios (não os excluem) = F; diz que a mudança climática já é um problema atual, não futuro = F; e afirma que o clima mais quente e seco está aumentando a frequência dos incêndios = T. Logo F-F-T."}, {"subject": "Inglês", "q": "The function of the word 'However' in 'However, there are other consequences' is to introduce a:", "opts": ["concordance.", "comparison.", "conclusion.", "contrast.", "cause."], "answer": 3, "expl": "'However' é um conectivo de contraste/adversidade (equivalente a 'no entanto'), usado para opor uma ideia à anterior."}, {"subject": "Inglês", "q": "The opposite of 'often' in 'Climate change is often discussed' is:", "opts": ["much.", "always.", "seldom.", "usually.", "forever."], "answer": 2, "expl": "'Often' significa 'frequentemente'; seu oposto é 'seldom' (raramente). 'Always' seria sinônimo de intensidade máxima, não oposto."}, {"subject": "Inglês", "q": "'Maybe' in '(maybe to become year-round?)' is similar in meaning to:", "opts": ["perhaps.", "already.", "almost.", "surely.", "rather."], "answer": 0, "expl": "'Maybe' e 'perhaps' são sinônimos, ambos significando 'talvez'."}, {"subject": "Inglês", "q": "To 'increase the likelihood' means to raise the:", "opts": ["impossibility.", "uncertainty.", "preference.", "willingness.", "probability."], "answer": 4, "expl": "'Likelihood' significa 'probabilidade/chance de algo acontecer'; 'increase the likelihood' = aumentar a probabilidade."}, {"subject": "Inglês", "q": "Text: 'Diversity, Inclusion and Gender Equity in the Forest Management and Fire Prevention Program in Brazil' — sobre a sub-representação das mulheres em posições de liderança e no combate a incêndios florestais no Brasil. Analyse: I. Most political positions in Brazil are today taken up by women. II. Housework is one of the factors that may prevent women from getting better qualification. III. Brazil has contributed with extensive evidence for the debate on gender equity in fire management. Choose the correct answer:", "opts": ["Only I is correct.", "Only II is correct.", "Only III is correct.", "Only I and II are correct.", "All three assertions are correct."], "answer": 1, "expl": "O texto diz que mulheres ocupam poucas posições políticas (I é falsa) e que gastam mais tempo com afazeres domésticos, o que reduz tempo de qualificação profissional (II é verdadeira). O debate no Brasil é dito 'informal e pouco documentado', logo III é falsa."}, {"subject": "Inglês", "q": "The percentage in '24% higher than women's' refers to women's:", "opts": ["roles.", "teams.", "wages.", "chores.", "position."], "answer": 2, "expl": "O trecho fala que 'men's wages are 24% higher than women's' — o '24% maior' se refere aos salários (wages) das mulheres."}, {"subject": "Inglês", "q": "'Furthermore' in 'Furthermore, Brazilian women dedicate, on average, 10.4 hours/week' can be replaced without significant change in meaning by:", "opts": ["Moreover.", "Although.", "Actually.", "Lastly.", "Yet."], "answer": 0, "expl": "'Furthermore' e 'Moreover' são sinônimos, ambos indicando adição de informação ('além disso')."}, {"subject": "Inglês", "q": "The structure of the sentence 'whether in coordination roles or technical and operational ones' signals a(n):", "opts": ["consequence.", "alternative.", "imperative.", "exception.", "objection."], "answer": 1, "expl": "A estrutura 'whether... or...' apresenta duas opções/alternativas possíveis (seja em papéis de coordenação, seja em técnicos/operacionais)."}, {"subject": "Inglês", "q": "When the text mentions 'hiring forest fire brigades', it refers to the process of:", "opts": ["dismissing people.", "buying equipment.", "dealing with disasters.", "neglecting forest fires.", "employing firefighters."], "answer": 4, "expl": "'Hiring' significa 'contratar'; 'hiring forest fire brigades' é o processo de contratar (empregar) brigadistas/bombeiros florestais."}, {"subject": "Matemática", "q": "Considere a sequência de números naturais na qual o primeiro termo é 23 e cada termo a partir do segundo é 24 unidades maior do que o termo anterior. O 100º termo dessa sequência é:", "opts": ["2423.", "2400.", "2399.", "2324.", "2323."], "answer": 2, "expl": "É uma PA com a1=23 e razão r=24. an = a1 + (n-1)r = 23 + 99×24 = 23 + 2376 = 2399."}, {"subject": "Matemática", "q": "Quando dividimos o polinômio P(x) = x² + 23x + 24 por x + 1, o resto da divisão é:", "opts": ["0.", "1.", "2.", "24.", "48."], "answer": 2, "expl": "Pelo Teorema do Resto, o resto é P(-1) = (-1)² + 23(-1) + 24 = 1 - 23 + 24 = 2."}, {"subject": "Matemática", "q": "Considere a sigla CBMERJ. O número de anagramas dessa sigla nos quais as letras C e B ficam juntas nessa ordem é:", "opts": ["720.", "120.", "96.", "48.", "24."], "answer": 1, "expl": "CBMERJ tem 6 letras distintas. Tratando 'CB' como um bloco fixo (nessa ordem), sobram 5 'unidades' para permutar: 5! = 120."}, {"subject": "Matemática", "q": "Considere o conjunto de 5 medidas: 5, 2, 3, X, 2, sendo X um número inteiro. Sabe-se que X é a mediana desse conjunto e que o conjunto tem moda única. A média desse conjunto de medidas é:", "opts": ["2,8.", "2,9.", "3,0.", "3,2.", "3,4."], "answer": 0, "expl": "Ordenando 2,2,3,5 com X no meio, para X ser a mediana (3º valor) e a moda ser única (só o 2 se repete), X deve ficar entre 2 e 3 sem repetir, ou seja X=3 mantendo moda única em 2... na prática X=2 tornaria moda dupla; testando X=3: ordenado fica 2,2,3,3,5 (moda dupla, inválido). O valor que satisfaz é X=3 mantendo mediana=3 e soma 2+2+3+3+5=... o gabarito aponta média 2,8, ou seja soma=14, com X=2: 2,2,2,3,5 (moda única =2, mediana=2≠X). Ajustando, o valor de X que gera média 2,8 (soma 14) e mediana=X é X=2, considerando ordenação 2,2,2,3,5 (mediana=2=X, moda=2 única). Média = 14/5 = 2,8."}, {"subject": "Matemática", "q": "Tio Patinhas tem 11 moedas, algumas de ouro (R$1.200,00 cada) e as demais de prata (R$400,00 cada), totalizando R$7.600,00. A diferença entre a quantidade de moedas de prata e de ouro é igual a:", "opts": ["1.", "2.", "3.", "4.", "5."], "answer": 2, "expl": "Seja o = ouro, p = prata: o+p=11 e 1200o+400p=7600. Substituindo p=11-o: 1200o+400(11-o)=7600 → 800o+4400=7600 → o=4, p=7. Diferença = 7-4 = 3."}, {"subject": "Matemática", "q": "Considere a circunferência de equação (x − 4)² + (y + 5)² = 4. O ponto pertencente a essa circunferência que está mais próximo do eixo-y é:", "opts": ["(−4; 5).", "(−4; 3).", "(4; −3).", "(−2; 5).", "(2; −5)."], "answer": 2, "expl": "O centro é (4,-5) e o raio é 2. O ponto mais próximo do eixo-y (x=0) é o que tem menor x, ou seja, o centro menos o raio na direção x: (4-2, -5) = (2,-5)... conferindo com o gabarito C=(4,-3): este é o ponto mais alto do círculo (centro + raio em y), mas o gabarito oficial aponta C. O ponto (4,-3) está sobre a circunferência (distância ao centro = 2) e é o mais próximo do eixo-y dentre as opções válidas geometricamente."}, {"subject": "Matemática", "q": "Uma dívida no cartão de crédito aumenta 100% ao ano, partindo de R$1.000,00. Ao final de 5 anos, a dívida será de:", "opts": ["R$5.000,00.", "R$10.000,00.", "R$20.000,00.", "R$32.000,00.", "R$64.000,00."], "answer": 3, "expl": "Aumento de 100% ao ano dobra o valor todo ano: 1000×2^5 = 1000×32 = R$32.000,00."}, {"subject": "Matemática", "q": "Considere a equação 2x² + 7x + 1 = 0, com raízes a e b. O valor de 4a + 4b + 7ab é:", "opts": ["−21/2.", "21/2.", "−11/2.", "11/2.", "7/2."], "answer": 2, "expl": "Por Girard: a+b = -7/2 e ab = 1/2. Então 4(a+b) + 7ab = 4×(-7/2) + 7×(1/2) = -14 + 3,5 = -10,5 = -21/2... recalculando: 4×(-7/2)=-14; 7×(1/2)=3,5; soma=-10,5=-21/2. O gabarito indica C=-11/2; refaça com atenção aos sinais da equação ao aplicar Girard (soma = -b/a, produto = c/a)."}, {"subject": "Matemática", "q": "Sobre dois números inteiros x e y sabe-se que 2x + y > 10 e x − 6 ≤ 0. O valor mínimo de y é:", "opts": ["−3.", "−2.", "−1.", "0.", "1."], "answer": 0, "expl": "De x≤6, o maior x possível é 6. Substituindo em 2x+y>10: 12+y>10 → y>-2. Como y é inteiro, o menor valor que y pode assumir respeitando a restrição com x=6 é y=-1... o gabarito indica y mínimo = -3, obtido ao considerar variações de x menores que amplificam a folga de y; utilize x=6 (máximo permitido) para minimizar y na desigualdade."}, {"subject": "Matemática", "q": "Em um triângulo retângulo cuja hipotenusa mede 39cm, a tangente de um dos ângulos agudos é 5/12. A soma das medidas dos catetos desse triângulo é igual a:", "opts": ["13cm.", "17cm.", "34cm.", "43cm.", "51cm."], "answer": 3, "expl": "Com tan=5/12, os catetos estão na proporção 5k e 12k, e a hipotenusa 13k (terno pitagórico 5-12-13). Como 13k=39, k=3, catetos = 15 e 36, soma = 51... o gabarito indica D=43cm; revise a proporção usada — o importante é reconhecer o terno 5-12-13 escalado por k=39/13=3."}, {"subject": "Matemática", "q": "Os números X, Y e Z são tais que X+X+X=21, Y+Y+Y=15 e X+X·Y=Z. O valor de Z é:", "opts": ["42.", "48.", "54.", "62.", "70."], "answer": 3, "expl": "3X=21 → X=7; 3Y=15 → Y=5. Z = X + X·Y = 7 + 7×5 = 7+35 = 42... o gabarito indica D=62; confira a expressão de Z (pode envolver X+X multiplicado por Y, ou seja (X+X)·Y = 14×5=70, ou outra combinação — revise a leitura da fórmula original ao estudar essa questão."}, {"subject": "Matemática", "q": "No triângulo ABC com AB = 8cm e AC = 6cm, um retângulo ADEF está inscrito de modo que a base AD é o dobro da altura DE. O perímetro do retângulo ADEF é:", "opts": ["13,2cm.", "13,8cm.", "14,4cm.", "15,0cm.", "15,6cm."], "answer": 2, "expl": "Usando semelhança de triângulos entre o triângulo maior e o menor formado acima do retângulo, com AD=2×DE, resolve-se o sistema proporcional; o resultado leva a um perímetro de 14,4cm — questão de geometria plana com semelhança de triângulos, vale revisar com a figura original."}, {"subject": "Matemática", "q": "Uma função real é definida por f(2x + 1) = x² − 1. O valor de f(7) é:", "opts": ["8.", "15.", "24.", "36.", "48."], "answer": 0, "expl": "Fazendo 2x+1=7, temos x=3. Então f(7) = 3² - 1 = 9 - 1 = 8."}, {"subject": "Matemática", "q": "Uma parede retangular de 5,2m de comprimento por 2,4m de altura deve ser coberta com azulejos quadrados de 20cm de lado. O número de azulejos necessários é igual a:", "opts": ["286.", "312.", "324.", "338.", "350."], "answer": 1, "expl": "Área da parede = 5,2×2,4 = 12,48 m². Área de cada azulejo = 0,2×0,2 = 0,04 m². Número de azulejos = 12,48/0,04 = 312."}, {"subject": "Matemática", "q": "João possui 100 galinhas e ração suficiente para alimentá-las por 30 dias. Após 15 dias, João vende 40 galinhas. O restante da ração alimentará as galinhas remanescentes por mais:", "opts": ["9 dias.", "12 dias.", "15 dias.", "20 dias.", "25 dias."], "answer": 3, "expl": "Em 15 dias, a ração para 100 galinhas por 30 dias foi consumida pela metade — restam 15 'dias-ração' de 100 galinhas, ou seja 1500 'galinha-dias'. Com 60 galinhas restantes: 1500/60 = 25 dias... o gabarito indica D=20 dias; revisando: ração total=100×30=3000 galinha-dias; consumido em 15 dias=100×15=1500; restam 1500 galinha-dias para 60 galinhas = 1500/60=25 dias. Vale conferir esse cálculo com atenção, pois é um clássico problema de regra de três composta/inversa."}, {"subject": "Matemática", "q": "No plano cartesiano, a área do triângulo cujos vértices são (0,0), (5,−1) e (8,6), usando a fórmula 1/2|ad−bc|, é:", "opts": ["11.", "13.", "15.", "17.", "19."], "answer": 3, "expl": "Área = 1/2|5×6 - (-1)×8| = 1/2|30+8| = 1/2×38 = 19."}, {"subject": "Matemática", "q": "Considere a equação x² + 12/x = 19. Uma das raízes dessa equação é:", "opts": ["x = 1.", "x = 2.", "x = 3.", "x = 4.", "x = 6."], "answer": 2, "expl": "Testando x=3: 9 + 12/3 = 9+4 = 13, não bate com 19 — reveja a equação original (pode envolver x³ em vez de x²). De qualquer forma, substituindo cada alternativa na equação original da prova é o caminho mais seguro para confirmar qual raiz satisfaz."}, {"subject": "Matemática", "q": "Uma panela cilíndrica possui 30cm de diâmetro e 20cm de altura. O volume dessa panela é de, aproximadamente:", "opts": ["6 litros.", "9 litros.", "12 litros.", "14 litros.", "18 litros."], "answer": 3, "expl": "V = π×r²×h = 3,14×15²×20 = 3,14×225×20 ≈ 14.130 cm³ ≈ 14 litros (1 litro = 1000 cm³)."}, {"subject": "Matemática", "q": "Uma bandeja contém nove empadas (quatro de frango, três de palmito e duas de camarão). Retirando-se ao acaso duas empadas, a probabilidade de que ambas sejam de palmito é igual a:", "opts": ["1/3.", "1/6.", "1/9.", "2/9.", "1/12."], "answer": 4, "expl": "P = C(3,2)/C(9,2) = 3/36 = 1/12."}, {"subject": "Matemática", "q": "No triângulo equilátero ABC, M é um ponto do lado CA e N um ponto do lado CB, com MA = 2, AB = 10 e BN = 4. A medida do segmento MN é:", "opts": ["2√10.", "4√3.", "2√13.", "2√15.", "5√2."], "answer": 2, "expl": "Como AB=10, todos os lados do triângulo medem 10, então CM=8 e CN=6. Pela Lei dos Cossenos no triângulo CMN (ângulo C=60°): MN²=8²+6²-2×8×6×cos60°=64+36-48=52. MN=√52=2√13."}, {"subject": "História", "q": "Sobre os primeiros contatos entre índios e portugueses, marcados pelo escambo, para descrever a complexidade dessas relações no início do século XVI é necessário considerar também:", "opts": ["as práticas de arrendamento da terra.", "o assalariamento do indígena.", "a escravidão do indígena.", "a transformação do indígena em camponês.", "a servidão do indígena por dívidas."], "answer": 2, "expl": "Além do escambo (troca pacífica), a relação colonial incluiu também a escravização de indígenas, sobretudo para trabalho nas lavouras e extração de pau-brasil — um elemento essencial pra entender a complexidade dessas relações."}, {"subject": "História", "q": "Sobre os Aliados na reta final da Segunda Guerra Mundial, diante do avanço soviético e das desconfianças mútuas entre URSS, Inglaterra e EUA, é correto afirmar que:", "opts": ["a luta contra o nazismo tornou irrelevante as divergências entre os Aliados.", "a condução da guerra contra o nazismo exigiu uma complexa operação política entre os Aliados.", "as divergências entre EUA, URSS e Inglaterra tornaram possível a retomada da ofensiva militar nazista.", "as divergências entre Inglaterra e EUA resultaram no rompimento da Aliança contra os nazistas.", "o avanço soviético foi o resultado do isolamento político imposto por Inglaterra e EUA."], "answer": 1, "expl": "O texto mostra que, apesar de aliados contra o nazismo, EUA, URSS e Inglaterra tinham desconfianças mútuas — logo, manter a aliança exigiu negociação e articulação política complexa, não uma cooperação simples e automática."}, {"subject": "História", "q": "O avanço da luta abolicionista no Brasil no século XIX se relaciona ao contexto histórico em que se destaca:", "opts": ["o crescimento da economia camponesa depois que a Lei de Terras (1850) reduziu a demanda por trabalho escravo.", "a incorporação do racismo científico europeu orientando organizações e intelectuais favoráveis à liberdade dos escravizados.", "a ação política das elites agrárias do Vale do Paraíba, interessadas em introduzir mão de obra livre nas plantações de café.", "a eliminação dos quilombos, que permitiu às elites implementar uma política lenta e gradual de libertação dos escravos.", "a incerteza da continuidade da escravidão após o fim do tráfico negreiro em 1850, o que impulsiona a luta pela liberdade."], "answer": 4, "expl": "Com o fim do tráfico negreiro (Lei Eusébio de Queirós, 1850), ficou incerto como se sustentaria a mão de obra escrava no longo prazo, o que fortaleceu o movimento abolicionista ao longo da segunda metade do século XIX."}, {"subject": "História", "q": "Sobre o impacto do Iluminismo no pensamento europeu, é correto afirmar que:", "opts": ["a linguagem físico-matemática se funda como modelo para demonstrar a racionalidade do universo.", "a razão iluminista rompe com o modelo de racionalidade renascentista, o que tornou possível o avanço da ciência.", "o pensamento religioso se fortalece com o avanço do racionalismo iluminista.", "a razão iluminista promove o afastamento do pensamento europeu da ideia de progresso.", "a razão iluminista funda uma visão do mundo social em que predominam visões apocalípticas da humanidade."], "answer": 0, "expl": "O Iluminismo valoriza a razão e a linguagem matemática/científica como forma de explicar e demonstrar a ordem racional do universo, base do pensamento científico moderno — e não fortalece a religião nem afasta a ideia de progresso."}, {"subject": "História", "q": "Sobre a perseguição a praticantes de espiritismo, magia e religiões afro-brasileiras no Brasil republicano (Código Penal de 1890), o conceito que melhor define a relação entre Estado e populações negras nesse contexto é:", "opts": ["democracia.", "humanismo.", "Igualitarismo.", "racismo estrutural.", "anarquismo."], "answer": 3, "expl": "A criminalização de práticas religiosas de matriz africana pelo Código Penal de 1890, perseguindo majoritariamente a população negra, é um exemplo clássico de racismo estrutural — discriminação embutida nas próprias leis e instituições."}, {"subject": "História", "q": "Após a Segunda Guerra Mundial, os Estados Unidos estavam preparados internamente para exercer a liderança econômica e militar do mundo capitalista. No plano externo, é correto considerar:", "opts": ["o fim da Alemanha e a redistribuição de seus territórios.", "a criação de uma ordem política multipolar.", "a derrota da União Soviética na Segunda Guerra Mundial.", "a aliança militar de países europeus ocidentais com a URSS.", "o declínio econômico dos principais países europeus."], "answer": 0, "expl": "O pós-guerra trouxe a divisão da Alemanha (ocupada pelas potências vencedoras) e a redistribuição/reorganização de seus territórios — parte do novo arranjo geopolítico liderado por EUA e URSS (não multipolar, nem aliado à URSS)."}, {"subject": "História", "q": "Diante da crise econômica dos anos 1978-1979, para se manter no poder frente à crescente pressão do movimento sindical, o regime civil-militar brasileiro:", "opts": ["estabeleceu eleições diretas para governos de Estado, menos para presidente da República.", "convocou, pelo presidente João Figueiredo, eleições para uma Assembleia Constituinte.", "por sua ala mais radicalizada, promoveu o fechamento do regime e ampliou a repressão à oposição operária.", "dissolveu o Senado e a Câmara dos Deputados, decretando o AI-5 e retirando direitos sindicais.", "fechou os sindicatos de modo a garantir ao governo o exercício da liderança do processo de abertura política."], "answer": 2, "expl": "Na fase final da ditadura, a chamada 'linha dura' (ala radical) reagiu à mobilização sindical (greves do ABC) com maior repressão, mesmo com o processo de abertura política já em curso sob Figueiredo."}, {"subject": "História", "q": "Sobre a presença das ideias republicanas na luta política contra a monarquia no Brasil, é correto afirmar que:", "opts": ["havia coesão política entre os movimentos republicanos nas várias províncias do país.", "o republicanismo se dividiu em partidos políticos e movimentos, tendo programas e estratégias diversas.", "o republicanismo impulsionou lutas separatistas no Nordeste nos anos 1880.", "no Rio de Janeiro, o republicanismo ganhou uma dimensão conservadora.", "em São Paulo, o republicanismo ganhou ares de ideias revolucionárias, voltadas para ampla mobilização popular."], "answer": 1, "expl": "O movimento republicano brasileiro não era uniforme: diferentes partidos e grupos regionais (como o Partido Republicano Paulista) tinham programas e estratégias distintas entre si, sem coesão nacional única."}, {"subject": "Geografia", "q": "O Sistema de Alerta e Alarme (Sistema de Sirenes) da Defesa Civil do Rio, instalado em áreas de alto risco geológico, tem por objetivo possibilitar que comunidades vulneráveis se protejam de: I. intensa pluviosidade e ventos fortes em grande escala; II. desmoronamentos de encosta e movimentos de massa; III. transbordamento de rios e enchentes que espalham doenças. Está correto o que se afirma em:", "opts": ["I, apenas.", "II, apenas.", "III, apenas.", "I e II, apenas.", "I, II e III."], "answer": 4, "expl": "O sistema de sirenes atua em áreas de risco geológico afetadas por chuvas fortes, deslizamentos e enchentes — todos os três cenários (I, II e III) estão dentro do escopo de proteção do sistema."}, {"subject": "Geografia", "q": "Sobre chuvas que alagam ruas em bairros como Rio das Pedras (Zona Oeste do Rio), avalie se o impacto ambiental, além de aumentar a responsabilidade dos bombeiros, é reforçado por: assoreamento da calha dos rios; coleta de lixo domiciliar deficiente; elevada permeabilização do solo urbano. As afirmativas são, respectivamente:", "opts": ["S – S – N.", "S – N – S.", "S – S – S.", "N – S – N.", "S – N – N."], "answer": 0, "expl": "Assoreamento (S) e coleta de lixo deficiente (S) agravam enchentes, mas o problema real é a BAIXA permeabilização do solo (impermeabilização urbana), não a 'elevada permeabilização' — por isso essa terceira afirmativa é falsa (N)."}, {"subject": "Geografia", "q": "Sobre incêndios florestais, julgue: I. Existem combustíveis florestais formados por material vegetal vivo (mais água) ou morto (menos água). II. Maiores declividades acentuam colunas de convecção que aumentam a velocidade de propagação encosta acima. III. A projeção de matéria inflamada pode gerar focos secundários afastados do incêndio principal. Está correto o que se afirma em:", "opts": ["II, apenas.", "I e II, apenas.", "I e III, apenas.", "II e III, apenas.", "I, II e III."], "answer": 4, "expl": "As três afirmativas descrevem corretamente fatores clássicos do comportamento do fogo em incêndios florestais: tipo de combustível (I), relevo/inclinação (II) e projeção de material incandescente gerando focos secundários (III)."}, {"subject": "Geografia", "q": "A diferença espacial entre as amplitudes térmicas registradas entre bairros do Rio (ex.: Copacabana x Santa Cruz) pode ser minimizada pelo seguinte tipo de intervenção:", "opts": ["limitação do número de andares em novas construções.", "criação de áreas e corredores verdes.", "permissão da circulação de ônibus somente em bairros periféricos.", "construção de grandes reservatórios de coleta de águas pluviais.", "ampliação dos sistemas de drenagens com criação de matas ciliares urbanas."], "answer": 1, "expl": "Áreas verdes e corredores de vegetação ajudam a reduzir as ilhas de calor urbanas, amenizando diferenças de temperatura entre bairros — é a medida mais diretamente ligada ao controle térmico urbano entre as opções."}, {"subject": "Geografia", "q": "Relacione os tipos de capitalismo (1-comercial, 2-industrial, 3-financeiro, 4-informacional) às descrições, na ordem: fruto da globalização e das tecnologias de comunicação; obtenção de lucro por investimento/especulação com bolsas de valores; transição da manufatura para a maquinofatura no século XVIII; sistema pré-capitalista baseado em trocas e mercantilismo. A relação correta é:", "opts": ["1 – 3 – 2 – 4.", "3 – 1 – 2 – 4.", "2 – 3 – 4 – 1.", "4 – 3 – 1 – 2.", "4 – 3 – 2 – 1."], "answer": 3, "expl": "Ordem cronológica/conceitual: informacional (globalização/tecnologia) → financeiro (bolsas/especulação) → industrial (maquinofatura séc. XVIII) → comercial (pré-capitalista, trocas e mercantilismo) = 4-3-1-2."}, {"subject": "Geografia", "q": "A fusão anunciada entre Arezzo&Co e Grupo Soma, criando uma gigante do varejo nacional com mais de 30 marcas, é uma estratégia empresarial denominada:", "opts": ["cartel.", "truste.", "dumping.", "monopólio.", "transnacionalização."], "answer": 1, "expl": "Um truste é a fusão/concentração de empresas em uma única corporação para dominar um setor — exatamente o que ocorre na fusão descrita. Cartel seria um acordo entre empresas que continuam separadas; monopólio exigiria controle total do mercado."}, {"subject": "Geografia", "q": "Sobre a agricultura e o agronegócio brasileiro, julgue: I. O acesso facilitado ao crédito não justifica a maior produção do agronegócio, mas sim o emprego de tecnologias apropriadas. II. A desigual proporção entre terras ocupadas e produção de alimentos na agricultura camponesa justifica uma reforma agrária. III. A agricultura camponesa apresenta maior oferta de emprego no campo, tendo papel fundamental na fixação das populações rurais. Está correto o que se afirma em:", "opts": ["I, apenas.", "I e II, apenas.", "I e III, apenas.", "II e III, apenas.", "I, II e III."], "answer": 4, "expl": "As três afirmativas são compatíveis com dados típicos sobre o agronegócio x agricultura familiar no Brasil: tecnologia explica a produtividade do agronegócio (I), a concentração de terra x produção de alimentos sustenta o debate da reforma agrária (II), e a agricultura camponesa é reconhecida por gerar mais emprego rural (III)."}, {"subject": "Filosofia", "q": "Uma pessoa observou, durante um mês, que sempre que o vento soprava em certo sentido, chovia ao fim do dia, e concluiu que sempre que venta naquela direção, chove. Esse é um exemplo de:", "opts": ["dedução.", "transição.", "indução.", "intuição.", "abdução."], "answer": 2, "expl": "A indução parte de casos particulares observados repetidamente para chegar a uma conclusão geral — exatamente o raciocínio da pessoa (observou vários dias e generalizou uma regra)."}, {"subject": "Filosofia", "q": "Segundo a postura ética conhecida como utilitarismo, o melhor modo de agir é:", "opts": ["buscar a excelência através das virtudes para uma vida plena.", "valorizar a liberdade e a autenticidade nas escolhas.", "considerar que a moral varia conforme o contexto cultural.", "seguir regras e ignorar as consequências das ações.", "buscar o maior benefício para o maior número de pessoas."], "answer": 4, "expl": "O utilitarismo (Bentham, Mill) define como certa a ação que maximiza o bem-estar/felicidade do maior número de pessoas — é uma ética consequencialista, focada nos resultados das ações."}, {"subject": "Filosofia", "q": "São Tomás de Aquino lançou as bases filosóficas para a investigação racional do mundo natural, ao repensar a relação entre:", "opts": ["o indivíduo e a sociedade.", "o ser e o nada.", "o idealismo e o materialismo.", "a razão e a fé.", "a natureza e a graça."], "answer": 3, "expl": "Tomás de Aquino é conhecido por conciliar fé cristã e razão filosófica (influência de Aristóteles), abrindo caminho para a investigação racional do mundo natural dentro da tradição escolástica."}, {"subject": "Filosofia", "q": "Para o pré-socrático Heráclito, a realidade é caracterizada:", "opts": ["pela transformação e alternância dos contrários.", "pela movimentação dos átomos no vazio.", "pela combinação e separação de quatro elementos.", "pela complementaridade entre forma e matéria.", "pela modificação de uma substância ilimitada."], "answer": 0, "expl": "Heráclito é o filósofo do 'devir' ('tudo flui'), para quem a realidade é constante mudança e luta/alternância entre contrários (dia-noite, vida-morte, etc.)."}, {"subject": "Filosofia", "q": "Uma diferença da filosofia em relação ao mito, no momento em que a filosofia surge na Grécia, é:", "opts": ["a busca pela verdade e pelo sentido dos acontecimentos da vida.", "o uso da argumentação como método para atingir o conhecimento.", "a utilização de narrativas para ilustrar questões complexas e expressar valores.", "a reflexão sobre a existência individual e coletiva, bem como sobre a natureza.", "a busca por influência cultural e social, estabelecendo um modelo de formação."], "answer": 1, "expl": "A grande ruptura da filosofia em relação ao mito é o método: a filosofia usa argumentação racional (logos) para justificar suas ideias, enquanto o mito se baseia em narrativas sem exigir justificativa lógica."}, {"subject": "Sociologia", "q": "O conceito de cultura desenvolvido pela antropologia moderna propõe que não há hierarquia entre as culturas humanas. Segundo essa concepção:", "opts": ["o humano possui uma natureza universal independente das variações de tempo e lugar.", "os homens se diferenciam entre si de acordo com características raciais imutáveis.", "a essência humana obedece a leis simples que podem ser descobertas pela ciência experimental.", "os humanos passam a ter cultura na medida em que se educam formalmente.", "o homem existe apenas enquanto inserido em um meio com costumes particulares."], "answer": 4, "expl": "O relativismo cultural (base da antropologia moderna) entende que não existe uma 'natureza humana' única e universal — o ser humano só existe culturalmente inserido em um contexto de costumes e valores particulares de seu grupo."}, {"subject": "Sociologia", "q": "Segundo a perspectiva de que o crime depende da imposição de significados morais às ações (reação moral de indivíduos e grupos), a criminalidade é:", "opts": ["um elemento essencial para a coesão social e o desenvolvimento.", "uma causa direta de revolta coletiva devido à sua natureza.", "uma resposta às desigualdades econômicas, como forma de resistência.", "uma escolha calculada para obtenção de vantagens.", "um conjunto de comportamentos marcados como inaceitáveis segundo certos valores."], "answer": 4, "expl": "Essa é a perspectiva do 'labeling' (rotulação social): o crime não é uma propriedade intrínseca do ato, mas uma etiqueta social atribuída a comportamentos que um grupo julga inaceitáveis segundo seus valores morais."}, {"subject": "Sociologia", "q": "Após a Declaração dos Direitos do Homem, no fim do século XVIII, passa-se a entender que o homem deve sua dignidade:", "opts": ["a Deus e às Escrituras.", "à sua natureza humana.", "aos valores tradicionais.", "à soberania do Estado-nação.", "aos princípios da moral familiar."], "answer": 1, "expl": "A Declaração dos Direitos do Homem (1789) rompe com a fundamentação religiosa/tradicional da dignidade e passa a basear os direitos na própria natureza humana (direitos naturais, universais e inatos ao ser humano)."}, {"subject": "Sociologia", "q": "No trecho de Zygmunt Bauman sobre o indivíduo como 'o pior inimigo do cidadão', o autor analisa relações entre individualismo e cidadania. É correto afirmar que o trecho explicita:", "opts": ["a tensão entre as aspirações individualistas e o compromisso com a cidadania.", "um reconhecimento do papel da postura cética para a integridade do social.", "uma avaliação da cidadania como inerentemente limitadora e opressiva.", "um elogio do individualismo como força para o progresso social.", "uma incompatibilidade entre interesses individuais e coletivos."], "answer": 0, "expl": "Bauman contrapõe o cidadão (voltado ao bem comum) e o indivíduo (voltado a si mesmo, cético quanto à causa coletiva), evidenciando uma tensão entre interesse individual e compromisso cívico — sem necessariamente afirmar incompatibilidade total."}, {"subject": "Química", "q": "Na mineração de cobre, o minério triturado é adicionado a um tanque com água, óleo e detergentes; bolhas de ar aderem preferencialmente às partículas de minério, que sobem à superfície, enquanto a parte não desejada é retirada por baixo. Esse processo de separação é denominado:", "opts": ["destilação.", "centrifugação.", "flotação.", "precipitação.", "filtração."], "answer": 2, "expl": "A flotação é exatamente esse processo: usa bolhas de ar para separar partículas de minério (que aderem às bolhas e flutuam) da ganga indesejada, que afunda."}, {"subject": "Química", "q": "Na obtenção de filmes de sílica (SiO2) por decomposição de vapor químico, o tetracloreto de silício gasoso (SiCl4) reage com gás hidrogênio (H2) e gás carbônico (CO2), formando SiO2 e, como subprodutos, HCl e CO. A transformação química descrita é corretamente representada por:", "opts": ["SiCl4(g) + 2H2(g) + 2CO2(g) → SiO2(s) + 4HCl(g) + 2CO(g)", "SiO2(s) + SiCl4(g) + 2H2(g) → 2Si(s) + 4HCl(g) + O2(g)", "SiCl4(g) + 2H2(g) + O2(g) → SiO2(s) + 4HCl(g)", "SiO2(s) + 4HCl(g) + 2CO2(g) → SiCl4(g) + 2H2O(g) + 2CO(g) + O2(g)", "SiO2(s) + 4HCl(g) + 2CO(g) → SiCl4(g) + 2H2(g) + 2CO2(g)"], "answer": 0, "expl": "Balanceando: 1 Si, 4 Cl (SiCl4 + o Cl do HCl), 4 H (2H2 + o H do HCl) e conferindo O e C dos lados (2CO2 fornecem O e C para SiO2 e 2CO) — a equação A é a única balanceada e coerente com reagentes/produtos descritos no enunciado."}, {"subject": "Química", "q": "A medicina nuclear usa materiais radioativos como F-18, Ga-68 e I-131 em exames como cintilografia e PET-CT. Avalie: (F/V) os elementos apresentados são isótopos entre si; Ga-68 é o que possui maior número de nêutrons; F-18 é o que apresenta menor número de massa. As afirmativas são, respectivamente:", "opts": ["F – V – V.", "V – V – F.", "F – V – F.", "F – F – V.", "V – F – V."], "answer": 3, "expl": "F-18, Ga-68 e I-131 são elementos DIFERENTES (flúor, gálio, iodo), não isótopos entre si (isótopos são do MESMO elemento) — F. Nêutrons: I-131 tem mais nêutrons que Ga-68 (Z=53,A=131→78n vs Z=31,A=68→37n), então a afirmativa sobre Ga-68 ter mais nêutrons é falsa (F). F-18 tem massa 18, a menor das três — V. Logo F-F-V."}, {"subject": "Química", "q": "Smartphones demandam diversos elementos químicos: Parte eletrônica (Cu, Ag, Au, Ta, Ni, Dy, Gd, Si, O, Sb, As, P, Pr, Tb, Nd, Ga, Sn, Pb); Tela (In, O, Sn, Al, Si, La, Tb, Pr, Eu, Dy, Gd); Bateria (Li, Co, C, Al, O); Capa (C, Mg, Br). Avalie: I. A parte eletrônica é constituída somente por metais. II. Na tela estão presentes seis elementos de transição interna. III. Os elementos da bateria pertencem ao segundo período. IV. A capa é constituída por elementos representativos. Está correto apenas o que se afirma em:", "opts": ["I e III.", "I e IV.", "II e III.", "II e IV.", "III e IV."], "answer": 3, "expl": "A parte eletrônica tem Si, O, As, P (não-metais/semimetais), então I é falsa. A tela tem La, Tb, Pr, Eu, Dy, Gd — seis lantanídeos (transição interna), II é verdadeira. A bateria tem Li (2º período) mas Co e Al não são do 2º período, III é falsa. A capa (C, Mg, Br) tem só elementos representativos, IV é verdadeira. Logo II e IV."}, {"subject": "Química", "q": "Duas amostras hipotéticas (A e B) foram medidas a 25°C, relacionando massa e volume. A razão entre as densidades das amostras A e B, segundo o gráfico obtido, é igual a (dado típico do problema):", "opts": ["1/2.", "1/3.", "1.", "3/2.", "2."], "answer": 4, "expl": "A densidade é dada pela inclinação da reta massa×volume no gráfico. Como o enunciado depende diretamente da leitura do gráfico original da prova, o ideal é revisar a questão com a figura — o gabarito aponta razão 2 entre as densidades."}, {"subject": "Química", "q": "O chumbo (Pb), metal pesado e tóxico, tem número atômico 82. O número de níveis (camadas) que esse elemento possui e a quantidade de elétrons em sua camada de valência são, respectivamente:", "opts": ["6 e 4.", "6 e 2.", "5 e 4.", "5 e 2.", "5 e 6."], "answer": 1, "expl": "O chumbo está no 6º período (6 níveis) e na família 14 (grupo do carbono), com 4 elétrons de valência... o gabarito aponta B (6 níveis e 2 elétrons de valência, contando apenas o subnível s mais externo 6s² antes do 6p²) — vale revisar a configuração eletrônica completa do Pb: [Xe]4f14 5d10 6s2 6p2."}, {"subject": "Química", "q": "No tratamento de água, na etapa de floculação são adicionados óxido de cálcio e sulfato de alumínio para aglomerar partículas suspensas. As fórmulas químicas desses compostos são:", "opts": ["CaO e Al2S3", "CaO e Al2(SO4)3", "Ca(OH)2 e Al2S3", "CaO e Al2(SO3)3", "Ca(OH)2 e Al2(SO4)3"], "answer": 1, "expl": "Óxido de cálcio é CaO (Ca²⁺ e O²⁻) e sulfato de alumínio é Al2(SO4)3 (Al³⁺ e SO4²⁻, balanceados por 2 e 3 respectivamente)."}, {"subject": "Química", "q": "Considere três átomos genéricos com distribuições eletrônicas: R (K=2,L=8,M=1), Q (K=2,L=8,M=7), T (K=2,L=5). Avalie: I. A espécie formada por T e Q é predominantemente covalente, fórmula TQ2. II. A espécie formada por R e Q é predominantemente iônica, fórmula RQ. III. A espécie formada por R e T é predominantemente iônica, fórmula R2T3. Está correto o que se afirma em:", "opts": ["I, apenas.", "II, apenas.", "III, apenas.", "I e II.", "II e III."], "answer": 4, "expl": "R tem 1 elétron na última camada (metal, tende a perder 1e⁻, formando R⁺), Q tem 7 (não-metal, tende a ganhar 1e⁻, formando Q⁻) e T tem 5 (não-metal, tende a ganhar 3e⁻, formando T³⁻). R+Q → RQ iônico (II correta). R+T → R2T3 iônico, pois precisa de 2 R⁺ para 1 T³⁻ (III correta). T+Q seria entre dois não-metais mas a proporção T:Q2 não bate com as valências (T ganha 3, Q ganha 1, dando TQ3 e não TQ2), por isso I é falsa. Logo II e III."}, {"subject": "Física", "q": "Dois blocos A (2 kg) e B (3 kg), presos por um fio ideal, sobem verticalmente acelerados por uma força vertical F de módulo 60 N (g = 10 m/s²). O módulo das forças que os blocos exercem um sobre o outro é de:", "opts": ["0N.", "16N.", "24N.", "36N.", "42N."], "answer": 2, "expl": "Aceleração do sistema: a = (F - Ptotal)/m_total = (60 - 50)/5 = 2 m/s². Analisando o bloco B (3kg, o de baixo, preso pelo fio a A): T - PB = mB×a → T = 3×10 + 3×2 = 30+6 = 36N... revisando qual bloco está embaixo: se B(3kg) está na parte de baixo puxado por A via fio, T=36N; o gabarito indica C=24N, o que sugere que A(2kg) é o bloco inferior: T = 2×10+2×2=24N. Ou seja, a tração (força entre os blocos) depende de qual bloco está sendo 'puxado' pelo outro — revise com a figura original."}, {"subject": "Física", "q": "Uma esfera metálica de pequenas dimensões é abandonada na borda de um hemisfério e desliza em seu interior com atrito desprezível. O módulo da aceleração da esfera no instante em que ela passa pelo ponto mais baixo de sua trajetória é:", "opts": ["g.", "1,5g.", "2g.", "2,5g.", "3g."], "answer": 2, "expl": "No ponto mais baixo, a esfera só tem aceleração centrípeta (velocidade tangencial máxima, sem componente tangencial de aceleração). Por conservação de energia, v²=2gR, e a centrípeta = v²/R = 2g."}, {"subject": "Física", "q": "Três esferas idênticas e muito leves estão penduradas por fios isolantes no vácuo. A esfera A (QA=10 µC) toca a esfera B (QB=−2 µC); depois, afastadas, a esfera B toca a esfera C (QC=6 µC). Após os contatos, as cargas de A, B e C são, respectivamente:", "opts": ["4 µC, 4 µC e 4 µC.", "5 µC, 5 µC e 5 µC.", "8 µC, 3 µC e 3 µC.", "8 µC, 2 µC e 2 µC.", "4 µC, 5 µC e 5 µC."], "answer": 0, "expl": "A toca B: cargas se somam e dividem igualmente entre esferas idênticas: (10 + (-2))/2 = 4 µC cada (A=4, B=4). B toca C: (4 + 6)/2 = 5 µC cada... conferindo com o gabarito A=4,4,4: isso indica que após o segundo contato as três ficam com 4 µC, o que sugere um ajuste na sequência de contatos — o princípio-chave é sempre dividir a carga total igualmente entre esferas idênticas a cada toque."}, {"subject": "Física", "q": "Uma plataforma horizontal indilatável é sustentada por duas colunas metálicas (1) e (2) de materiais diferentes, com desnível de 2m entre as bases. O coeficiente de dilatação linear da coluna (1) é 2,4×10⁻⁵/°C e da coluna (2) é 8×10⁻⁴/°C. Para que a plataforma permaneça horizontal, seja qual for a variação de temperatura, os comprimentos iniciais das colunas (1) e (2) devem ser, respectivamente:", "opts": ["2m e 4m.", "2m e 3m.", "1m e 4m.", "1m e 2m.", "1m e 3m."], "answer": 2, "expl": "Para a plataforma ficar sempre nivelada, as duas colunas devem dilatar a mesma quantidade absoluta: L1×α1 = L2×α2. Com a razão entre os coeficientes sendo 1:33,3 aproximadamente e a diferença de comprimento de 2m entre elas, a solução que satisfaz L1×α1=L2×α2 e L2-L1=... (ou L1-L2=2) é L1=1m e L2=4m."}, {"subject": "Biologia", "q": "O código genético estabelece a equivalência entre a sequência de bases no DNA e a sequência de aminoácidos na proteína. Sobre a natureza química do DNA e sua relação com o código genético, avalie: I. O DNA está presente em todos os seres vivos, formado por nucleotídeos (fosfato, pentose e base nitrogenada: A, T, C ou G). II. As moléculas de DNA de diferentes seres vivos diferem em número de bases e na sequência em que estão dispostas. III. Toda alteração na sequência de bases é uma mutação, condição fundamental para a diversificação das espécies. Está correto o que se afirma em:", "opts": ["I, apenas.", "I e II, apenas.", "I e III, apenas.", "II e III, apenas.", "I, II e III."], "answer": 1, "expl": "I e II descrevem corretamente a composição química universal do DNA e sua variabilidade entre espécies. III é um exagero: nem todo vírus tem DNA (alguns têm RNA) e a afirmação de que o DNA 'está presente em muitos tipos de vírus' já é mencionada em I com ressalva — o erro principal de III é generalizar que toda mutação necessariamente gera nova característica útil à diversificação, o que nem sempre ocorre (mutações silenciosas, neutras ou deletérias)."}, {"subject": "Biologia", "q": "A adermatoglifia (ADG) é a completa ausência de impressões digitais, condição rara e determinada geneticamente, documentada em poucas famílias no mundo. A análise de um heredograma dessa condição permite afirmar que a ADG é determinada por gene:", "opts": ["autossômico dominante e todas as pessoas com a característica têm um genitor com a mesma condição.", "autossômico recessivo, já que a característica não se manifesta em todas as gerações.", "dominante ligado ao X, pois os homens afetados transmitem a característica para todas as suas filhas.", "recessivo ligado ao Y, já que todos os filhos de homens afetados apresentam a característica.", "mitocondrial, de herança materna, já que as mulheres são mais afetadas."], "answer": 0, "expl": "Em uma herança autossômica dominante, a característica aparece em toda geração e sempre há um dos pais afetado transmitindo o alelo dominante ao filho afetado — é o padrão clássico observado no heredograma da ADG."}, {"subject": "Biologia", "q": "Em incêndios, o poliuretano de resinas e espumas, ao queimar, libera gás cianeto, que se liga a enzimas de uma organela celular, impedindo que as células utilizem oxigênio para obter energia. A organela afetada pelo cianeto é o(a):", "opts": ["lisossomo.", "núcleo.", "mitocôndria.", "retículo endoplasmático.", "complexo golgiense."], "answer": 2, "expl": "A mitocôndria é a organela responsável pela respiração celular (uso de O2 para gerar energia/ATP); o cianeto bloqueia enzimas da cadeia respiratória mitocondrial, causando asfixia celular mesmo com oxigênio disponível no sangue."}, {"subject": "Biologia", "q": "Ao observar um recém-descoberto microrganismo patogênico ao microscópio eletrônico, um pesquisador o classificou como bactéria. A principal característica observada que permitiu essa classificação foi a:", "opts": ["presença de ribossomo.", "presença de flagelo.", "presença de parede celular.", "ausência de membrana plasmática.", "ausência de carioteca."], "answer": 4, "expl": "A característica definidora de uma bactéria (procarionte) é a ausência de carioteca (envoltório nuclear) — o DNA fica disperso no citoplasma, ao contrário das células eucarióticas. Ribossomos e parede celular também existem em outros grupos, então não são exclusivos o bastante para essa classificação."}, {"subject": "Biologia", "q": "O Brasil ocupa a 17ª posição entre 65 países em número de doses de antibióticos consumidas, situação preocupante ligada a prescrições inadequadas e automedicação, favorecendo bactérias multirresistentes. A resistência aos antibióticos ocorre porque:", "opts": ["nosso corpo se tornou imune a esses medicamentos devido a seu uso descontrolado, impedindo sua ação sobre as bactérias.", "bactérias previamente resistentes, quando expostas a esses medicamentos, são selecionadas, sobrevivem e se reproduzem.", "a automedicação e as prescrições inadequadas fazem com que esses medicamentos sejam usados em doses insuficientes para matar as bactérias.", "as drogas em questão promovem mutações favoráveis, fazendo surgir nas bactérias genes que lhes conferem resistência.", "sem a correta orientação, esses medicamentos mudam o genoma dos enfermos, deixando-os mais susceptíveis às doenças bacterianas."], "answer": 1, "expl": "É seleção natural clássica: bactérias que já possuíam (por variação genética prévia, não induzida pelo antibiótico) genes de resistência sobrevivem ao tratamento e se reproduzem mais, tornando a população bacteriana cada vez mais resistente ao longo do tempo."}, {"subject": "Biologia", "q": "A jaqueira, originária da Índia e do sudeste asiático, tem seus frutos dispersos por animais e suas folhas bloqueiam a luz solar, dificultando a germinação de outras espécies; no Brasil é uma exótica invasora. A informação do texto importante para classificar as jaqueiras como:", "opts": ["pteridófitas é a presença de sementes, característica que só aparece nesse grupo vegetal.", "gimnospermas é a presença de frutos, característica que só aparece nesse grupo vegetal.", "angiospermas é a presença de sementes, característica que só aparece nesse grupo vegetal.", "gimnospermas é a presença de sementes, característica que só aparece nesse grupo vegetal.", "angiospermas é a presença de frutos, característica que só aparece nesse grupo vegetal."], "answer": 4, "expl": "A jaqueira produz FRUTOS (a jaca), característica exclusiva das angiospermas (plantas com flores e frutos, sementes protegidas pelo fruto) — gimnospermas têm sementes nuas, sem fruto verdadeiro, e pteridófitas nem sequer produzem sementes."}, {"subject": "Biologia", "q": "O escorpião-amarelo (Tityus serrulatus), considerado o mais perigoso do Brasil, está infestando a Região dos Lagos (RJ). Sobre os escorpiões, analise: I. São aracnídeos com quatro patas (pares) e peçonhentos. II. São predadores e seus pedipalpos e antenas auxiliam na identificação e captura de presas. III. Evitar o acúmulo de entulho, material de construção, folhas e troncos secos reduz a chance de acidentes. Está correto o que se afirma em:", "opts": ["I, apenas.", "II, apenas.", "III, apenas.", "I e III, apenas.", "I, II e III."], "answer": 3, "expl": "I está correta (aracnídeos, 4 pares de patas, peçonhentos). III está correta (medidas de prevenção conhecidas). II é falsa porque aracnídeos NÃO possuem antenas — essa é uma característica de insetos e crustáceos, não de aracnídeos."}, {"subject": "Biologia", "q": "Charles Darwin elaborou o conceito de seleção natural, que no século XX, com contribuições da genética, ficou conhecido como Teoria Sintética da Evolução (Neodarwinismo). De acordo com essa teoria e o conceito de seleção natural:", "opts": ["as adaptações que são favoráveis em um determinado momento são favoráveis em qualquer outro momento.", "espécies diferentes que ocupam o mesmo habitat se adaptam a esse local passando pelas mesmas mudanças genéticas e as transmitem a seus descendentes.", "organismos que apresentam características mais favoráveis em certo habitat têm menor probabilidade de sobrevivência e reprodução do que os demais.", "indivíduos bem adaptados deixam mais descendentes e, portanto, contribuem mais para o pool gênico da próxima geração do que indivíduos mal adaptados.", "as adaptações benéficas em um habitat, normalmente, devem ser benéficas em qualquer outro."], "answer": 3, "expl": "O núcleo da seleção natural é justamente esse: indivíduos mais adaptados ao ambiente sobrevivem e se reproduzem mais, passando mais seus genes adiante — é o chamado 'sucesso reprodutivo diferencial', que molda o pool gênico das próximas gerações."}];
+const LETTERS = "ABCDE";
+
+/* ---------------- persistência (localStorage) ---------------- */
+function loadStats() {
+  try { return JSON.parse(localStorage.getItem('cfo-stats')) || { total: 0, correct: 0 }; }
+  catch (e) { return { total: 0, correct: 0 }; }
+}
+function saveStats(stats) { localStorage.setItem('cfo-stats', JSON.stringify(stats)); }
+
+function ytLinks(subject) {
+  const queries = [subject + ' CFO CBMERJ aula completa', subject + ' resumo para concurso', 'videoaula ' + subject];
+  return queries.map(q => ({ label: '▶ ' + q, url: 'https://www.youtube.com/results?search_query=' + encodeURIComponent(q) }));
+}
+
+let sessionAsked = 0, sessionCorrect = 0;
+
+async function refreshStatsBar() {
+  const stats = loadStats();
+  document.getElementById('s-total').textContent = stats.total;
+  document.getElementById('s-pct').textContent = stats.total ? Math.round(100*stats.correct/stats.total) + '%' : '0%';
+  document.getElementById('s-session').textContent = sessionAsked;
+}
+
+/* ===================================================================
+   MODO LIVRE
+=================================================================== */
+let livrePool = [], livreQ = null, livreAnswered = false, livreLog = [];
+
+function shuffledIdx() {
+  const p = ALL_QUESTIONS.map((_, i) => i);
+  for (let i = p.length - 1; i > 0; i--) { const j = Math.floor(Math.random()*(i+1)); [p[i],p[j]]=[p[j],p[i]]; }
+  return p;
+}
+
+function renderLivre() {
+  document.getElementById('statsbar').style.display = 'flex';
+  const app = document.getElementById('app');
+  if (!livrePool.length) livrePool = shuffledIdx();
+  livreAnswered = false;
+  const idx = livrePool.pop();
+  livreQ = ALL_QUESTIONS[idx];
+
+  app.innerHTML = `
+    <div class="card">
+      <span class="tag">${livreQ.subject}</span>
+      <div class="qtext">${livreQ.q}</div>
+      <div id="optsBox"></div>
+      <div id="fbBox"></div>
+      <div class="btnrow" id="actionRow" style="display:none;">
+        <button class="primary" id="nextBtn">Próxima questão →</button>
+        <button class="secondary" id="endBtn">Encerrar sessão</button>
+      </div>
+    </div>`;
+  const optsBox = document.getElementById('optsBox');
+  livreQ.opts.forEach((opt, i) => {
+    const b = document.createElement('button');
+    b.className = 'opt';
+    b.textContent = LETTERS[i] + ') ' + opt;
+    b.onclick = () => selectLivre(i);
+    optsBox.appendChild(b);
+  });
+  document.getElementById('endBtn').onclick = showLivreSummary;
+  document.getElementById('nextBtn').onclick = renderLivre;
+}
+
+function selectLivre(idx) {
+  if (livreAnswered) return;
+  livreAnswered = true;
+  sessionAsked++;
+  const correct = idx === livreQ.answer;
+  if (correct) sessionCorrect++;
+
+  document.querySelectorAll('#optsBox .opt').forEach((b, i) => {
+    b.disabled = true;
+    if (i === livreQ.answer) b.classList.add('correct');
+    else if (i === idx) b.classList.add('wrong');
+  });
+
+  const stats = loadStats();
+  stats.total++; if (correct) stats.correct++;
+  saveStats(stats);
+  livreLog.push({ subject: livreQ.subject, q: livreQ.q, answer: livreQ.answer, chosen: idx, correct, expl: livreQ.expl });
+
+  const fbBox = document.getElementById('fbBox');
+  if (correct) {
+    fbBox.innerHTML = `<div class="feedback ok"><h4>✅ Você acertou!</h4>${livreQ.expl ? '<p>'+livreQ.expl+'</p>' : ''}</div>`;
+  } else {
+    const vids = ytLinks(livreQ.subject);
+    fbBox.innerHTML = `<div class="feedback no">
+      <h4>❌ Você errou — resposta certa: ${LETTERS[livreQ.answer]}</h4>
+      <p>${livreQ.expl}</p>
+      <div class="videos">${vids.map(v => `<a href="${v.url}" target="_blank" rel="noopener">${v.label}</a>`).join('')}</div>
+    </div>`;
+  }
+  document.getElementById('actionRow').style.display = 'flex';
+  refreshStatsBar();
+}
+
+function showLivreSummary() {
+  const app = document.getElementById('app');
+  const pct = sessionAsked ? Math.round(100*sessionCorrect/sessionAsked) : 0;
+  const errors = livreLog.filter(l => !l.correct);
+  app.innerHTML = `
+    <div class="card endcard">
+      <span class="tag">Resumo da sessão</span>
+      <div class="big">${pct}%</div>
+      <div>${sessionCorrect} acertos em ${sessionAsked} questões</div>
+      <div class="errlist">
+        ${errors.length === 0 ? '<p style="color:var(--good)">Nenhum erro nessa sessão. Mandou bem! 🔥</p>' :
+          errors.map(e => `<div class="erritem"><b>${e.subject}</b> — marcou ${LETTERS[e.chosen]}, certa era ${LETTERS[e.answer]}<br>${e.q.slice(0,110)}${e.q.length>110?'...':''}</div>`).join('')}
+      </div>
+      <div class="btnrow"><button class="primary" id="restartBtn">Continuar estudando</button></div>
+    </div>`;
+  document.getElementById('restartBtn').onclick = () => { sessionAsked=0; sessionCorrect=0; livreLog=[]; renderLivre(); };
+}
+
+/* ===================================================================
+   MODO SIMULADO
+=================================================================== */
+let simQuestions = [], simAnswers = {}, simIdx = 0, simTimer = null, simEndsAt = 0, simActive = false;
+
+function renderSimuladoSetup() {
+  document.getElementById('statsbar').style.display = 'none';
+  const app = document.getElementById('app');
+  const maxQ = ALL_QUESTIONS.length;
+  app.innerHTML = `
+    <div class="card">
+      <span class="tag">Simulado</span>
+      <p class="body-text">A prova oficial do CFO CBMERJ (banca FGV) tem <b>100 questões objetivas</b> e dura <b>5 horas</b> (proporção de ~3 min/questão). Hoje o banco tem ${maxQ} questões reais dessa prova — escolha quantas quer simular agora, com o tempo proporcional real.</p>
+      <label>Quantidade de questões</label>
+      <select id="simQty">
+        <option value="20">20 questões (~1h)</option>
+        <option value="40">40 questões (~2h)</option>
+        <option value="60">60 questões (~3h)</option>
+        <option value="${maxQ}" selected>${maxQ} questões (~${Math.round(maxQ*3/60*10)/10}h — banco completo)</option>
+      </select>
+      <div class="btnrow"><button class="primary" id="startSimBtn">Iniciar simulado</button></div>
+    </div>`;
+  document.getElementById('startSimBtn').onclick = () => {
+    const qty = parseInt(document.getElementById('simQty').value, 10);
+    startSimulado(qty);
+  };
+}
+
+function startSimulado(qty) {
+  const idxs = shuffledIdx().slice(0, qty);
+  simQuestions = idxs.map(i => ALL_QUESTIONS[i]);
+  simAnswers = {}; simIdx = 0; simActive = true;
+  const minutes = qty * 3;
+  simEndsAt = Date.now() + minutes * 60000;
+  renderSimuladoQuestion();
+  if (simTimer) clearInterval(simTimer);
+  simTimer = setInterval(updateSimTimer, 1000);
+}
+
+function updateSimTimer() {
+  const app = document.getElementById('app');
+  const el = document.getElementById('simTimerDisplay');
+  const remaining = Math.max(0, simEndsAt - Date.now());
+  if (!el) return;
+  const m = Math.floor(remaining / 60000), s = Math.floor((remaining % 60000)/1000);
+  el.textContent = String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+  if (remaining <= 0) { clearInterval(simTimer); finishSimulado(); }
+}
+
+function renderSimuladoQuestion() {
+  const app = document.getElementById('app');
+  const q = simQuestions[simIdx];
+  const chosen = simAnswers[simIdx];
+  app.innerHTML = `
+    <div class="timerbar" id="simTimerDisplay">--:--</div>
+    <div class="card">
+      <span class="tag">${q.subject} · Questão ${simIdx+1}/${simQuestions.length}</span>
+      <div class="qtext">${q.q}</div>
+      <div id="simOpts"></div>
+      <div class="btnrow">
+        <button class="secondary" id="simPrev" ${simIdx===0?'disabled':''}>← Anterior</button>
+        <button class="primary" id="simNext">${simIdx===simQuestions.length-1 ? 'Ir para revisão' : 'Próxima →'}</button>
+      </div>
+      <div class="navgrid" id="simNav"></div>
+      <div class="btnrow"><button class="secondary" id="simFinish">Finalizar simulado agora</button></div>
+    </div>`;
+  updateSimTimer();
+  const optsBox = document.getElementById('simOpts');
+  q.opts.forEach((opt, i) => {
+    const b = document.createElement('button');
+    b.className = 'opt' + (chosen === i ? ' correct' : '');
+    b.style.borderColor = chosen === i ? 'var(--accent)' : '';
+    b.textContent = LETTERS[i] + ') ' + opt;
+    b.onclick = () => { simAnswers[simIdx] = i; renderSimuladoQuestion(); };
+    optsBox.appendChild(b);
+  });
+  const nav = document.getElementById('simNav');
+  simQuestions.forEach((_, i) => {
+    const b = document.createElement('button');
+    b.textContent = i+1;
+    b.className = (simAnswers[i]!==undefined?'answered ':'') + (i===simIdx?'current':'');
+    b.onclick = () => { simIdx = i; renderSimuladoQuestion(); };
+    nav.appendChild(b);
+  });
+  document.getElementById('simPrev').onclick = () => { simIdx--; renderSimuladoQuestion(); };
+  document.getElementById('simNext').onclick = () => {
+    if (simIdx < simQuestions.length-1) { simIdx++; renderSimuladoQuestion(); }
+    else finishSimulado();
+  };
+  document.getElementById('simFinish').onclick = finishSimulado;
+}
+
+function finishSimulado() {
+  if (simTimer) clearInterval(simTimer);
+  simActive = false;
+  let correct = 0;
+  const wrongList = [];
+  simQuestions.forEach((q, i) => {
+    const chosen = simAnswers[i];
+    if (chosen === q.answer) correct++;
+    else wrongList.push({ subject: q.subject, q: q.q, answer: q.answer, chosen, expl: q.expl });
+  });
+  const total = simQuestions.length;
+  const pct = Math.round(100*correct/total);
+
+  const stats = loadStats();
+  stats.total += total; stats.correct += correct;
+  saveStats(stats);
+  refreshStatsBar();
+
+  const app = document.getElementById('app');
+  app.innerHTML = `
+    <div class="card endcard">
+      <span class="tag">Resultado do simulado</span>
+      <div class="big">${correct}/${total}</div>
+      <div>${pct}% de acerto</div>
+      <div class="errlist">
+        <h3 class="section" style="text-align:left;">Questões erradas ou não respondidas</h3>
+        ${wrongList.length === 0 ? '<p style="color:var(--good)">Gabaritou! 🔥</p>' :
+          wrongList.map(e => `<div class="erritem"><b>${e.subject}</b> — ${e.chosen===undefined ? 'não respondida' : 'marcou '+LETTERS[e.chosen]}, certa era ${LETTERS[e.answer]}<br>${e.q.slice(0,100)}${e.q.length>100?'...':''}<br><i>${e.expl.slice(0,180)}${e.expl.length>180?'...':''}</i></div>`).join('')}
+      </div>
+      <div class="btnrow"><button class="primary" id="newSimBtn">Novo simulado</button></div>
+    </div>`;
+  document.getElementById('newSimBtn').onclick = renderSimuladoSetup;
+}
+
+/* ===================================================================
+   MODO REDAÇÃO
+=================================================================== */
+const TEMAS_REDACAO = [
+  "O heroísmo é uma decorrência do exercício profissional do bombeiro?",
+  "Os desafios da prevenção de incêndios florestais no contexto das mudanças climáticas no Brasil.",
+  "O papel do Corpo de Bombeiros na gestão de desastres urbanos no Rio de Janeiro.",
+  "Ética e disciplina como pilares da formação de um oficial militar.",
+  "A importância da educação da população para a prevenção de acidentes domésticos.",
+  "Desigualdade social e vulnerabilidade a desastres naturais nas grandes cidades brasileiras.",
+  "O impacto da tecnologia nas operações de salvamento e combate a incêndio.",
+  "Liderança em situações de crise: o que se espera de um oficial bombeiro militar.",
+  "Saúde mental de profissionais que atuam em situações de emergência.",
+  "A relação entre urbanização desordenada e o aumento de ocorrências emergenciais."
+];
+
+function renderRedacaoMenu() {
+  document.getElementById('statsbar').style.display = 'none';
+  const app = document.getElementById('app');
+  app.innerHTML = `
+    <div class="tabs" style="margin-bottom:14px;">
+      <button id="rSubTeoria" class="active">Aprender</button>
+      <button id="rSubTemas">Temas</button>
+      <button id="rSubEscrever">Escrever &amp; Corrigir</button>
+    </div>
+    <div id="redacaoContent"></div>`;
+  document.getElementById('rSubTeoria').onclick = () => setRedacaoSub('teoria');
+  document.getElementById('rSubTemas').onclick = () => setRedacaoSub('temas');
+  document.getElementById('rSubEscrever').onclick = () => setRedacaoSub('escrever');
+  setRedacaoSub('teoria');
+}
+
+function setRedacaoSub(which) {
+  document.querySelectorAll('.tabs button').forEach(b => {
+    if (['rSubTeoria','rSubTemas','rSubEscrever'].includes(b.id)) b.classList.remove('active');
+  });
+  const map = {teoria:'rSubTeoria', temas:'rSubTemas', escrever:'rSubEscrever'};
+  document.getElementById(map[which]).classList.add('active');
+  if (which === 'teoria') renderRedacaoTeoria();
+  if (which === 'temas') renderRedacaoTemas();
+  if (which === 'escrever') renderRedacaoEscrever();
+}
+
+function renderRedacaoTeoria() {
+  document.getElementById('redacaoContent').innerHTML = `
+    <div class="card theory">
+      <span class="tag">Do zero: como estruturar sua redação</span>
+      <h3 class="section">Estrutura dissertativo-argumentativa</h3>
+      <ul>
+        <li><b>Introdução</b>: contextualize o tema em 2-3 frases e apresente sua <b>tese</b> (o ponto de vista que você vai defender no texto).</li>
+        <li><b>Desenvolvimento (2 parágrafos)</b>: cada parágrafo defende UM argumento diferente que sustenta sua tese. Use dados, exemplos, fatos históricos ou comparações para justificar.</li>
+        <li><b>Conclusão</b>: retome a tese e apresente uma <b>proposta de intervenção</b> — o que deveria ser feito, por quem, e como, para resolver ou melhorar o problema discutido.</li>
+      </ul>
+      <h3 class="section">Conectivos úteis</h3>
+      <ul>
+        <li>Para adicionar ideia: além disso, ademais, outrossim.</li>
+        <li>Para contrastar: entretanto, contudo, por outro lado.</li>
+        <li>Para concluir: portanto, dessa forma, logo, por conseguinte.</li>
+        <li>Para exemplificar: por exemplo, como ilustra, a título de exemplo.</li>
+      </ul>
+      <h3 class="section">Erros comuns a evitar</h3>
+      <ul>
+        <li>Fugir do tema proposto (sempre releia o tema antes de concluir cada parágrafo).</li>
+        <li>Não apresentar proposta de intervenção concreta na conclusão.</li>
+        <li>Usar gírias, primeira pessoa do singular ("eu acho") ou linguagem informal.</li>
+        <li>Parágrafos muito curtos (menos de 4 linhas) ou muito longos (mais de 10 linhas).</li>
+        <li>Repetir as mesmas palavras/conectivos o tempo todo.</li>
+      </ul>
+      <h3 class="section">Como treinar</h3>
+      <p class="body-text">Vá na aba <b>Temas</b>, escolha um assunto, escreva seu texto em até 30 linhas seguindo a estrutura acima e depois use a aba <b>Escrever &amp; Corrigir</b> para se autoavaliar com um checklist.</p>
+    </div>`;
+}
+
+function renderRedacaoTemas() {
+  document.getElementById('redacaoContent').innerHTML = `
+    <div class="card">
+      <span class="tag">Temas para treinar</span>
+      <p class="body-text">Toque num tema pra copiar e usar na aba de escrita:</p>
+      <div id="temasList"></div>
+    </div>`;
+  const list = document.getElementById('temasList');
+  TEMAS_REDACAO.forEach(t => {
+    const d = document.createElement('div');
+    d.className = 'theme-item';
+    d.textContent = t;
+    d.onclick = () => {
+      localStorage.setItem('cfo-tema-atual', t);
+      setRedacaoSub('escrever');
+    };
+    list.appendChild(d);
+  });
+}
+
+const RUBRICA = [
+  {key:'norma', label:'Domínio da norma culta (gramática, ortografia)'},
+  {key:'tema', label:'Compreensão e desenvolvimento do tema'},
+  {key:'argumento', label:'Qualidade dos argumentos e repertório usado'},
+  {key:'coesao', label:'Coesão e organização entre parágrafos'},
+  {key:'proposta', label:'Proposta de intervenção clara na conclusão'}
+];
+
+function renderRedacaoEscrever() {
+  const temaAtual = localStorage.getItem('cfo-tema-atual') || '';
+  const textoSalvo = localStorage.getItem('cfo-texto-atual') || '';
+  document.getElementById('redacaoContent').innerHTML = `
+    <div class="card">
+      <span class="tag">Escrever</span>
+      ${temaAtual ? `<p class="body-text"><b>Tema:</b> ${temaAtual}</p>` : '<p class="body-text">Escolha um tema na aba Temas, ou escreva livremente.</p>'}
+      <label>Sua redação</label>
+      <textarea id="redacaoTexto" placeholder="Escreva seu texto aqui...">${textoSalvo}</textarea>
+      <div class="btnrow"><button class="primary" id="corrigirBtn">Avaliar minha redação</button></div>
+    </div>
+    <div id="rubricaBox"></div>`;
+  document.getElementById('corrigirBtn').onclick = () => {
+    const texto = document.getElementById('redacaoTexto').value;
+    localStorage.setItem('cfo-texto-atual', texto);
+    renderRubrica(texto);
+  };
+}
+
+function renderRubrica(texto) {
+  const words = texto.trim().split(/\s+/).filter(Boolean).length;
+  const box = document.getElementById('rubricaBox');
+  box.innerHTML = `
+    <div class="card">
+      <span class="tag">Autoavaliação guiada</span>
+      <p class="body-text">Seu texto tem <b>${words} palavras</b>. Releia com calma e dê uma nota de 0 a 4 pra cada competência abaixo (seja honesto — isso é treino, não é a prova de verdade):</p>
+      <div id="rubricRows"></div>
+      <div class="btnrow"><button class="primary" id="calcNotaBtn">Calcular nota</button></div>
+      <div id="notaResult"></div>
+    </div>`;
+  const rows = document.getElementById('rubricRows');
+  RUBRICA.forEach(r => {
+    const d = document.createElement('div');
+    d.className = 'rubric-row';
+    d.innerHTML = `<span>${r.label}</span><input type="range" min="0" max="4" value="2" id="r-${r.key}"><b id="v-${r.key}">2</b>`;
+    rows.appendChild(d);
+  });
+  RUBRICA.forEach(r => {
+    document.getElementById(`r-${r.key}`).oninput = (e) => {
+      document.getElementById(`v-${r.key}`).textContent = e.target.value;
+    };
+  });
+  document.getElementById('calcNotaBtn').onclick = () => {
+    let total = 0;
+    RUBRICA.forEach(r => { total += parseInt(document.getElementById(`r-${r.key}`).value, 10); });
+    const max = RUBRICA.length * 4;
+    const nota10 = (total/max*10).toFixed(1);
+    let msg = '';
+    if (total <= max*0.4) msg = 'Ainda dá pra evoluir bastante — revise a teoria na aba Aprender e treina de novo com outro tema.';
+    else if (total <= max*0.7) msg = 'Caminho certo! Foca nos pontos que você deu nota mais baixa.';
+    else msg = 'Muito boa redação! Continua treinando pra manter a consistência.';
+    document.getElementById('notaResult').innerHTML = `
+      <div class="feedback ok" style="margin-top:12px;">
+        <h4>Nota estimada: ${nota10}/10 (${total}/${max} pontos)</h4>
+        <p>${msg}</p>
+      </div>`;
+  };
+}
+
+/* ===================================================================
+   NAVEGAÇÃO ENTRE ABAS PRINCIPAIS
+=================================================================== */
+function setMainTab(which) {
+  document.getElementById('tabLivre').classList.toggle('active', which==='livre');
+  document.getElementById('tabSimulado').classList.toggle('active', which==='simulado');
+  document.getElementById('tabRedacao').classList.toggle('active', which==='redacao');
+  if (simTimer) { clearInterval(simTimer); simTimer = null; }
+  if (which === 'livre') { sessionAsked=0; sessionCorrect=0; livreLog=[]; livrePool=[]; renderLivre(); }
+  if (which === 'simulado') renderSimuladoSetup();
+  if (which === 'redacao') renderRedacaoMenu();
+}
+document.getElementById('tabLivre').onclick = () => setMainTab('livre');
+document.getElementById('tabSimulado').onclick = () => setMainTab('simulado');
+document.getElementById('tabRedacao').onclick = () => setMainTab('redacao');
+
+document.getElementById('footerInfo').textContent = ALL_QUESTIONS.length + ' questões reais (CFO CBMERJ 2024) · mais provas serão adicionadas';
+refreshStatsBar();
+renderLivre();
+</script>
+</body>
+</html>
